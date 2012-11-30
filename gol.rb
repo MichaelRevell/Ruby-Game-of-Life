@@ -156,7 +156,7 @@ until ( population == 0 ) do
 
             # Output creature then increase its age or empty space and census
             if new_world[[col, row]].to_i == 1
-                print new_world[[col, row]].print
+                print new_world[[col, row]].to_s
                 new_world[[col, row]].grow
                 population += 1
             else
