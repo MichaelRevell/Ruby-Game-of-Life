@@ -28,9 +28,37 @@ density = 20.0 / 100
 # Seconds between generations
 time_step = 0.1
 
-# What do the creatures look like?
-creature = "O"
+# Keep track of creatures age
+class Creature
+  def initialize
+    @age = 0
+    # @expected_life = 10
+    # @minumum_age_of_reproduction = 2
+  end
 
+  def grow
+    @age += 1
+  end
+  
+  def to_i
+    return 1
+  end
+
+  def to_s
+    case @age
+    when 0..2
+      return "."
+    when 3..4
+      return ","
+    when 5..6
+      return "o"
+    when 7..8
+      return "O"
+    else
+      return "@"
+    end
+  end
+end
 
 # --------------------------------------- INIT
 
@@ -53,11 +81,11 @@ print "Generation: ", generation, "\n\n"
     1.upto(width) { |col|
 
         # Decide whether current cell lives in accordance with inital density
-        new_world[[col, row]] = ((density + rand) / 2).round
+        new_world[[col, row]] = ((density + rand) / 2).round == 1 ? Creature.new : 0
 
         # Output creature or empty space and census
-        if new_world[[col, row]] == 1
-            print creature
+        if new_world[[col, row]].to_i == 1
+            print new_world[[col, row]].to_s
             population += 1
         else
             print " "
@@ -68,7 +96,6 @@ print "Generation: ", generation, "\n\n"
     print "\n"
 
 }
-
 
 # --------------------------------------- GO
 
@@ -94,21 +121,21 @@ until ( population == 0 ) do
         1.upto(width) { |col|
 
             # Determine number of neighbors
-            neighbors = old_world[[col-1, row-1]] +
-                        old_world[[col-1, row]] +
-                        old_world[[col-1, row+1]] +
-                        old_world[[col, row-1]] +
-                        old_world[[col, row+1]] +
-                        old_world[[col+1, row-1]] +
-                        old_world[[col+1, row]] +
-                        old_world[[col+1, row+1]]
+            neighbors = old_world[[col-1, row-1]].to_i +
+                        old_world[[col-1, row]].to_i +
+                        old_world[[col-1, row+1]].to_i +
+                        old_world[[col, row-1]].to_i +
+                        old_world[[col, row+1]].to_i +
+                        old_world[[col+1, row-1]].to_i +
+                        old_world[[col+1, row]].to_i +
+                        old_world[[col+1, row+1]].to_i
 
             # Dead in the old world?
-            if old_world[[col, row]] == 0
+            if old_world[[col, row]].to_i == 0
 
                 # GOL Rule #1: If cell is dead and has 3 neighbors, it's alive now:
                 if neighbors == 3
-                    new_world[[col, row]] = 1
+                    new_world[[col, row]] = Creature.new
                 end
 
             # Nope, alive!
@@ -118,7 +145,6 @@ until ( population == 0 ) do
                 if neighbors < 2
                     new_world[[col, row]] = 0
                 end
-
                 # GOL Rule #2: if cell is alive and has 2 or 3 neighbors, nothing changes
 
                 # GOL Rule #4: if cell is alive and has more than 3 neighbors, it dies:
@@ -128,9 +154,10 @@ until ( population == 0 ) do
 
             end
 
-            # Output creature or empty space and census
-            if new_world[[col, row]] == 1
-                print creature
+            # Output creature then increase its age or empty space and census
+            if new_world[[col, row]].to_i == 1
+                print new_world[[col, row]].print
+                new_world[[col, row]].grow
                 population += 1
             else
                 print " "
